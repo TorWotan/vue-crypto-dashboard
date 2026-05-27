@@ -1,42 +1,93 @@
-# vue-crypto-dashboard
+# Vue Crypto Dashboard
 
-This template should help get you started developing with Vue 3 in Vite.
+## English
 
-## Recommended IDE Setup
+### About The Project
+Vue Crypto Dashboard is a single-page application for tracking and exploring cryptocurrency market data from CoinGecko.  
+It includes a searchable coins table, detailed coin page, auto-refresh controls, interactive charts, dark/light theme switching, and RU/EN localization.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+### Tech Stack
+- Vue 3
+- TypeScript
+- PrimeVue + PrimeIcons
+- Tailwind CSS v4
+- Pinia
+- Vue Router
+- Chart.js (via PrimeVue Chart)
+- vue-i18n
+- Vite
 
-## Recommended Browser Setup
+### UI Screenshot / GIF
+Add your media file and keep one of these lines:
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+```md
+![UI Screenshot](public/images/screenshot.png)
 ```
 
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
+```md
+![UI Demo GIF](public/images/ui-demo.gif)
 ```
 
-### Type-Check, Compile and Minify for Production
+### Run Locally
+1. Install dependencies:
+   ```sh
+   npm install
+   ```
+2. Start development server:
+   ```sh
+   npm run dev
+   ```
+3. Open:
+   `http://localhost:5173`
 
+### Production Build
+```sh
+npm run build
+```
+
+---
+
+## Русский
+
+### О проекте
+Vue Crypto Dashboard - это SPA-приложение для просмотра и анализа данных криптовалют с CoinGecko.  
+В проекте есть таблица монет с поиском, страница деталей монеты, автообновление, интерактивные графики, переключение темы и локализация RU/EN.
+
+### Технологический стек
+- Vue 3
+- TypeScript
+- PrimeVue + PrimeIcons
+- Tailwind CSS v4
+- Pinia
+- Vue Router
+- Chart.js (через PrimeVue Chart)
+- vue-i18n
+- Vite
+
+### Скриншот / GIF интерфейса
+Добавьте файл с медиа и оставьте одну из строк:
+
+```md
+![Скриншот интерфейса](public/images/screenshot.png)
+```
+
+```md
+![GIF интерфейса](public/images/ui-demo.gif)
+```
+
+### Локальный запуск
+1. Установить зависимости:
+   ```sh
+   npm install
+   ```
+2. Запустить dev-сервер:
+   ```sh
+   npm run dev
+   ```
+3. Открыть в браузере:
+   `http://localhost:5173`
+
+### Продакшен-сборка
 ```sh
 npm run build
 ```
