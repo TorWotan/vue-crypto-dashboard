@@ -1,0 +1,3 @@
+<template>
+  <!-- footer placeholder -->
+</template>
