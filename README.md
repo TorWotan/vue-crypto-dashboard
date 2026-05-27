@@ -18,14 +18,10 @@ It includes a searchable coins table, detailed coin page, auto-refresh controls,
 - Vite
 
 ### UI Screenshot / GIF
-Add your media file and keep one of these lines:
 
 ```md
-![UI Screenshot](public/images/screenshot.png)
-```
+<img width="1841" height="802" alt="image" src="https://github.com/user-attachments/assets/7b4b320a-32e0-4d9a-a9fe-37b95041c5e4" />
 
-```md
-![UI Demo GIF](public/images/ui-demo.gif)
 ```
 
 ### Run Locally
@@ -63,17 +59,6 @@ Vue Crypto Dashboard - это SPA-приложение для просмотра
 - Chart.js (через PrimeVue Chart)
 - vue-i18n
 - Vite
-
-### Скриншот / GIF интерфейса
-Добавьте файл с медиа и оставьте одну из строк:
-
-```md
-![Скриншот интерфейса](public/images/screenshot.png)
-```
-
-```md
-![GIF интерфейса](public/images/ui-demo.gif)
-```
 
 ### Локальный запуск
 1. Установить зависимости:
