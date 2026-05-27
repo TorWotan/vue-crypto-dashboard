@@ -18,11 +18,7 @@ It includes a searchable coins table, detailed coin page, auto-refresh controls,
 - Vite
 
 ### UI Screenshot / GIF
-
-```md
-<img width="1841" height="802" alt="image" src="https://github.com/user-attachments/assets/7b4b320a-32e0-4d9a-a9fe-37b95041c5e4" />
-
-```
+![UI Screenshot](public/images/dashboard-screenshot.png)
 
 ### Run Locally
 1. Install dependencies:
@@ -60,6 +56,8 @@ Vue Crypto Dashboard - это SPA-приложение для просмотра
 - vue-i18n
 - Vite
 
+### Скриншот / GIF интерфейса
+![Скриншот интерфейса](public/images/dashboard-screenshot.png)
 ### Локальный запуск
 1. Установить зависимости:
    ```sh
