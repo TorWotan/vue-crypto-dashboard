@@ -1,22 +1,23 @@
 <template>
   <div class="flex flex-col gap-4">
     <div class="flex">
-    <SelectButton
-      v-model="chartType"
-      :options="chartTabs"
-      optionValue="value"
-      dataKey="value"
-      :allow-empty="false"
-      class="justify-between bg-surface-100 dark:bg-surface-950"
-      :pt="{ pcToggleButton: { root: { class: '!p-[2px]' } } }"
-    >
-      <template #option="slotProps">
-        <span :class="slotProps.option.class" class="text-sm leading-[16px]">
-          {{ slotProps.option.label }}
-        </span>
-      </template>
-    </SelectButton>
-</div>
+      <SelectButton
+        v-model="chartType"
+        :options="chartTabs"
+        optionValue="value"
+        dataKey="value"
+        :allow-empty="false"
+        class="justify-between bg-surface-100 dark:bg-surface-950"
+        :pt="{ pcToggleButton: { root: { class: '!p-[2px]' } } }"
+      >
+        <template #option="slotProps">
+          <span :class="slotProps.option.class" class="text-sm leading-[16px]">
+            {{ slotProps.option.label }}
+          </span>
+        </template>
+      </SelectButton>
+    </div>
+
     <div
       v-if="store.loading"
       class="flex items-center justify-center py-16 text-sm text-muted-color"
@@ -31,7 +32,7 @@
         :type="chartType"
         :data="chartData"
         :options="chartOptions"
-        :class="chartType === 'doughnut' ? 'w-full md:w-[44rem] h-[28rem] md:h-[36rem]' : 'w-full h-[320px]'"
+        :class="chartClass"
       />
     </div>
   </div>
@@ -47,24 +48,19 @@ import type { ChartOptions } from 'chart.js'
 import NotFound from '@/components/ui/badges/NotFound.vue'
 import { useCryptoStore } from '@/stores/crypto'
 
-type ChartType = 'bar' | 'doughnut'
+type ChartType = 'line' | 'bar' | 'doughnut'
 
 const store = useCryptoStore()
-const { t } = useI18n()
-const chartType = ref<ChartType>('bar')
+const { t, locale } = useI18n()
+const chartType = ref<ChartType>('line')
 
-const chartTabs = computed(() => [
-  {
-    value: 'bar' as ChartType,
-    label: t('charts.bar'),
-    class: chartType.value === 'bar' ? 'text-primary dark:text-primary-400' : '',
-  },
-  {
-    value: 'doughnut' as ChartType,
-    label: t('charts.doughnut'),
-    class: chartType.value === 'doughnut' ? 'text-primary dark:text-primary-400' : '',
-  },
-])
+const chartTabs = computed(() =>
+  (['line', 'bar', 'doughnut'] as ChartType[]).map((value) => ({
+    value,
+    label: t(`charts.${value}`),
+    class: chartType.value === value ? 'text-primary dark:text-primary-400' : '',
+  }))
+)
 
 const topCoins = computed(() => store.coins.slice(0, 8))
 
@@ -79,7 +75,43 @@ const palette = [
   '#84CC16',
 ]
 
+function buildSparklineLabels(length: number): string[] {
+  const now = Date.now()
+  const stepMs = (7 * 24 * 60 * 60 * 1000) / Math.max(length - 1, 1)
+  const dateLocale = locale.value.startsWith('ru') ? 'ru-RU' : 'en-US'
+
+  return Array.from({ length }, (_, i) => {
+    const date = new Date(now - (length - 1 - i) * stepMs)
+    return date.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' })
+  })
+}
+
+const chartClass = computed(() => {
+  if (chartType.value === 'line') return 'h-[30rem] w-full'
+  if (chartType.value === 'doughnut') return 'w-full md:w-[44rem] h-[28rem] md:h-[36rem]'
+  return 'w-full h-[320px]'
+})
+
 const chartData = computed(() => {
+  if (chartType.value === 'line') {
+    const prices = topCoins.value[0]?.sparkline_in_7d?.price ?? []
+    const labels = buildSparklineLabels(prices.length)
+
+    return {
+      labels,
+      datasets: topCoins.value.map((coin, index) => ({
+        label: coin.symbol.toUpperCase(),
+        data: coin.sparkline_in_7d?.price ?? [],
+        borderColor: palette[index % palette.length],
+        backgroundColor: `${palette[index % palette.length]}33`,
+        tension: 0.3,
+        fill: false,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+      })),
+    }
+  }
+
   const labels = topCoins.value.map((coin) => coin.symbol.toUpperCase())
 
   if (chartType.value === 'doughnut') {
@@ -133,6 +165,47 @@ const chartOptions = computed<ChartOptions>(() => {
     }
   }
 
+  if (chartType.value === 'line') {
+    return {
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        legend: {
+          labels: { color: textColor },
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const value = ctx.parsed.y
+              if (value == null) return ''
+              return `${ctx.dataset.label}: $${value.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: textColor,
+            maxTicksLimit: 8,
+            maxRotation: 0,
+          },
+          grid: { color: gridColor },
+        },
+        y: {
+          ticks: {
+            color: textColor,
+            callback: (value) => `$${Number(value).toLocaleString()}`,
+          },
+          grid: { color: gridColor },
+        },
+      },
+    }
+  }
+
   return {
     maintainAspectRatio: false,
     plugins: {
@@ -154,8 +227,9 @@ const chartOptions = computed<ChartOptions>(() => {
 })
 
 onMounted(() => {
-  if (!store.coins.length) {
-    store.loadCoins()
+  const hasSparkline = store.coins.some((coin) => coin.sparkline_in_7d?.price?.length)
+  if (!store.coins.length || !hasSparkline) {
+    store.loadCoins({ sparkline: true })
   }
 })
 </script>

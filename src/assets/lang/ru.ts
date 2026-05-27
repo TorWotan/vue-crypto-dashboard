@@ -51,6 +51,7 @@ export default {
     },
   },
   charts: {
+    line: 'Цена за 7 дней',
     bar: 'Показатели',
     doughnut: 'Доли рынка',
     loading: 'Загрузка данных графика...',

@@ -7,11 +7,11 @@ export const useCryptoStore = defineStore('crypto', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  async function loadCoins() {
+  async function loadCoins(options?: { sparkline?: boolean }) {
     loading.value = true
     error.value = null
     try {
-      coins.value = await fetchCoins()
+      coins.value = await fetchCoins('usd', 20, options?.sparkline ?? false)
     } catch (e) {
       error.value = 'Failed to load data'
     } finally {

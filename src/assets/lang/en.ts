@@ -51,6 +51,7 @@ export default {
     },
   },
   charts: {
+    line: '7-Day Price',
     bar: 'Metrics',
     doughnut: 'Market Share',
     loading: 'Loading chart data...',

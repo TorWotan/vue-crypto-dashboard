@@ -9,6 +9,9 @@ export interface Coin {
   price_change_percentage_24h: number
   market_cap: number
   total_volume: number
+  sparkline_in_7d?: {
+    price: number[]
+  }
 }
 
 export interface CoinSearchResult {
@@ -50,13 +53,17 @@ export interface CoinDetails {
   }
 }
 
-export async function fetchCoins(currency = 'usd', perPage = 20): Promise<Coin[]> {
+export async function fetchCoins(
+  currency = 'usd',
+  perPage = 20,
+  sparkline = false
+): Promise<Coin[]> {
   const params = new URLSearchParams({
     vs_currency: currency,
     order: 'market_cap_desc',
     per_page: String(perPage),
     page: '1',
-    sparkline: 'false',
+    sparkline: String(sparkline),
   })
 
   const res = await fetch(`${BASE_URL}/coins/markets?${params}`)
