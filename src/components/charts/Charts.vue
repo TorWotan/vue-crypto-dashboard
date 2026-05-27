@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-4">
-    <div class="flex">
+    <div class="flex items-center justify-between">
       <SelectButton
         v-model="chartType"
         :options="chartTabs"
@@ -16,13 +16,12 @@
           </span>
         </template>
       </SelectButton>
+      <ButtonRepeat @update="store.loadCoins({ sparkline: true })" />
+
     </div>
 
-    <div
-      v-if="store.loading"
-      class="flex items-center justify-center py-16 text-sm text-muted-color"
-    >
-      {{ t('charts.loading') }}
+    <div v-if="store.loading" class="py-8 flex justify-center">
+      <ProgressSpinner strokeWidth="4" class="!h-10 !w-10" />
     </div>
 
     <NotFound v-else-if="!topCoins.length" class="py-12" :text="t('charts.noData')" />
@@ -46,7 +45,9 @@ import SelectButton from 'primevue/selectbutton'
 import 'chart.js/auto'
 import type { ChartOptions } from 'chart.js'
 import NotFound from '@/components/ui/badges/NotFound.vue'
+import ProgressSpinner from 'primevue/progressspinner'
 import { useCryptoStore } from '@/stores/crypto'
+import ButtonRepeat from '@/components/ui/ButtonRepeat.vue'
 
 type ChartType = 'line' | 'bar' | 'doughnut'
 

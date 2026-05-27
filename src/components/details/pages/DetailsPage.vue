@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex items-center gap-4 mb-6">
+    <div class="flex items-center justify-between gap-4 mb-6">
       <SearchInput
         v-model="searchQuery"
         :placeholder="t('details.searchPlaceholder')"
@@ -8,11 +8,11 @@
         @input="debouncedSearch"
         @clear="clearSearch"
       />
+
+      <ButtonRepeat @update="performSearch" />
     </div>
 
-    <div v-if="loading" class="flex justify-center py-12">
-      <i class="pi pi-spin pi-spinner text-2xl text-primary" />
-    </div>
+    <DetailsPageSkeleton v-if="loading" />
 
     <div v-else-if="error" class="py-8">
       <NotFound
@@ -29,7 +29,7 @@
           v-for="coin in searchResults"
           :key="coin.id"
           type="button"
-          class="flex items-center gap-3 p-3 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors text-left"
+          class="flex items-center gap-3 p-3 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 hover:bg-surface-50 dark:hover:bg-surface-800 transition-all duration-200 ease-out hover:scale-[1.02] text-left"
           @click="selectCoin(coin.id)"
         >
           <img :src="coin.thumb" :alt="coin.name" class="w-8 h-8 rounded-full" />
@@ -46,13 +46,15 @@
 
     <div v-else-if="coinDetails" class="space-y-6">
       <div
-        class="flex items-start gap-4 p-6 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900"
+        class="details-card flex items-start gap-4 p-6 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900"
       >
-        <img
-          :src="coinDetails.image.large"
-          :alt="coinDetails.name"
-          class="w-16 h-16 rounded-full"
-        />
+        <div class="h-16 w-16 overflow-hidden rounded-full shrink-0">
+          <img
+            :src="getAssetPath(coinDetails.image.large)"
+            :alt="coinDetails.name"
+            class="h-16 w-16 object-cover rounded-full"
+          />
+        </div>
         <div class="flex-1">
           <div class="flex items-center gap-3 flex-wrap">
             <h2 class="text-2xl font-bold">{{ coinDetails.name }}</h2>
@@ -84,7 +86,7 @@
         <div
           v-for="stat in stats"
           :key="stat.label"
-          class="p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900"
+          class="details-card p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900"
         >
           <p class="text-sm text-muted-color mb-1">{{ stat.label }}</p>
           <p class="text-lg font-semibold">{{ stat.value }}</p>
@@ -93,7 +95,7 @@
 
       <div
         v-if="description"
-        class="p-6 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900"
+        class="details-card p-6 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900"
       >
         <h3 class="text-lg font-semibold mb-3">{{ t('details.about') }}</h3>
         <p class="text-sm text-muted-color leading-relaxed">{{ description }}</p>
@@ -101,7 +103,7 @@
 
       <div
         v-if="homepage"
-        class="p-6 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900"
+        class="details-card p-6 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900"
       >
         <h3 class="text-lg font-semibold mb-3">{{ t('details.links') }}</h3>
         <a
@@ -125,6 +127,9 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import SearchInput from '@/components/ui/SearchInput.vue'
 import NotFound from '@/components/ui/badges/NotFound.vue'
+import ButtonRepeat from '@/components/ui/ButtonRepeat.vue'
+import DetailsPageSkeleton from '@/components/details/DetailsPageSkeleton.vue'
+import { getAssetPath } from '@/config/assets'
 import { debounce } from '@/core/helpers/debounce'
 import {
   searchCoins,
@@ -260,3 +265,13 @@ onMounted(() => {
   }
 })
 </script>
+
+<style scoped>
+.details-card {
+  transition: transform 0.2s ease-out;
+}
+
+.details-card:hover {
+  transform: scale(1.02);
+}
+</style>

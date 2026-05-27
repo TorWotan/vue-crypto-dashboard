@@ -1,11 +1,13 @@
 <template>
-  <AppSectionHeader class="mb-6" />
-  <Transition name="fade" mode="out-in">
-    <div :key="currentPageKey">
-      <component :is="currentPage" v-if="currentPage" />
-      <NotFound v-else class="py-12" :text="t('ui.pageNotFound')" />
-    </div>
-  </Transition>
+  <div class="main-view-container mx-auto w-full max-w-[1280px]">
+    <AppSectionHeader class="mb-6" />
+    <Transition name="fade" mode="out-in">
+      <div :key="currentPageKey">
+        <component :is="currentPage" v-if="currentPage" />
+        <NotFound v-else class="py-12" :text="t('ui.pageNotFound')" />
+      </div>
+    </Transition>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -25,7 +27,7 @@ const listPages = {
     () => import('@/components/dashboard/pages/DashboardPage.vue')
   ),
   details: defineAsyncComponent(() => import('@/components/details/pages/DetailsPage.vue')),
-  charts: defineAsyncComponent(() => import('@/components/charts/pages/ChartsPage.vue')),
+  charts: defineAsyncComponent(() => import('@/components/charts/Charts.vue')),
 }
 
 const pageName = computed(() => {

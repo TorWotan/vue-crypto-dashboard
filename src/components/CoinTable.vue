@@ -26,6 +26,10 @@
       striped-rows
       class="w-full"
     >
+      <template #loading>
+        <ProgressSpinner />
+      </template>
+
       <template #empty>
         <NotFound class="py-5" :text="emptyText" />
       </template>
@@ -85,6 +89,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import ProgressSpinner from 'primevue/progressspinner'
 import SearchInput from '@/components/ui/SearchInput.vue'
 import RefreshTimerSection from '@/components/ui/RefreshTimerSection.vue'
 import IconActionButton from '@/components/ui/IconActionButton.vue'
