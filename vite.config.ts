@@ -7,7 +7,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: mode === 'ghpages' ? '/crypto-dashboard/' : '/',
+  base: mode === 'ghpages' ? '/vue-crypto-dashboard/' : '/',
   plugins: [
     vue(),
     tailwindcss(),

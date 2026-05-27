@@ -1,6 +1,6 @@
 <template>
   <div class="layout-topbar flex items-center justify-between px-8 py-4 border-b border-surface-200 dark:border-surface-800 bg-surface-0 dark:bg-surface-900">
-    <h1 class="text-xl font-bold">Crypto Dashboard</h1>
+    <h1 class="text-xl font-bold">Vue Crypto Dashboard</h1>
     <button
       type="button"
       class="layout-topbar-action"
