@@ -3,13 +3,14 @@
   <Transition name="fade" mode="out-in">
     <div :key="currentPageKey">
       <component :is="currentPage" v-if="currentPage" />
-      <NotFound v-else class="py-12" text="Page not found" />
+      <NotFound v-else class="py-12" :text="t('ui.pageNotFound')" />
     </div>
   </Transition>
 </template>
 
 <script setup lang="ts">
 import { computed, defineAsyncComponent } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppSectionHeader from '@/components/app/AppSectionHeader.vue'
 import NotFound from '@/components/ui/badges/NotFound.vue'
 
@@ -17,11 +18,14 @@ const props = defineProps<{
   page: string | string[]
 }>()
 
+const { t } = useI18n()
+
 const listPages = {
   dashboard: defineAsyncComponent(
     () => import('@/components/dashboard/pages/DashboardPage.vue')
   ),
   details: defineAsyncComponent(() => import('@/components/details/pages/DetailsPage.vue')),
+  charts: defineAsyncComponent(() => import('@/components/charts/pages/ChartsPage.vue')),
 }
 
 const pageName = computed(() => {

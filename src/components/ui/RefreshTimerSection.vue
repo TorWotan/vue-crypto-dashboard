@@ -11,7 +11,7 @@
         @click="openIntervalSec"
         :aria-expanded="show ? 'true' : 'false'"
         :pendingFillDurationMs="intervalSec * 1000"
-        :labelFormatter="(s) => `${s}s ago`"
+        :labelFormatter="formatSecondsAgo"
       />
 
       <Transition name="drop">
@@ -53,6 +53,7 @@
 
 <script setup lang="ts">
 import { ref, watch, nextTick, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
 import RequestTimer from '@/components/ui/RequestTimer.vue'
 import Select from 'primevue/select'
 import ButtonRepeat from '@/components/ui/ButtonRepeat.vue'
@@ -78,6 +79,12 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<Emits>()
+
+const { t } = useI18n()
+
+function formatSecondsAgo(seconds: number) {
+  return t('ui.secondsAgo', { s: seconds })
+}
 
 const show = ref(false)
 const wrap = ref<HTMLElement | null>(null)

@@ -3,7 +3,7 @@
     <div class="flex items-center gap-4 mb-6">
       <SearchInput
         v-model="search"
-        placeholder="Search coin..."
+        :placeholder="t('dashboard.searchPlaceholder')"
         :class-name="'h-[32px] w-[256px]'"
       />
 
@@ -30,7 +30,7 @@
         <NotFound class="py-5" :text="emptyText" />
       </template>
 
-      <Column field="name" header="Coin">
+      <Column field="name" :header="t('dashboard.columns.coin')">
         <template #body="{ data }">
           <div class="flex items-center gap-3">
             <img :src="data.image" :alt="data.name" class="w-6 h-6" />
@@ -40,13 +40,13 @@
         </template>
       </Column>
 
-      <Column field="current_price" header="Price">
+      <Column field="current_price" :header="t('dashboard.columns.price')">
         <template #body="{ data }">
           ${{ data.current_price.toLocaleString() }}
         </template>
       </Column>
 
-      <Column field="price_change_percentage_24h" header="24h %">
+      <Column field="price_change_percentage_24h" :header="t('dashboard.columns.change24h')">
         <template #body="{ data }">
           <span :class="data.price_change_percentage_24h >= 0 ? 'text-green-400' : 'text-red-400'">
             {{ data.price_change_percentage_24h.toFixed(2) }}%
@@ -54,13 +54,13 @@
         </template>
       </Column>
 
-      <Column field="market_cap" header="Market Cap">
+      <Column field="market_cap" :header="t('dashboard.columns.marketCap')">
         <template #body="{ data }">
           ${{ (data.market_cap / 1_000_000_000).toFixed(2) }}B
         </template>
       </Column>
 
-      <Column field="total_volume" header="Volume 24h">
+      <Column field="total_volume" :header="t('dashboard.columns.volume24h')">
         <template #body="{ data }">
           ${{ (data.total_volume / 1_000_000_000).toFixed(2) }}B
         </template>
@@ -69,7 +69,7 @@
       <Column header="" style="width: 4rem">
         <template #body="{ data }">
           <IconActionButton
-            tooltip="View coin details"
+            :tooltip="t('dashboard.viewDetails')"
             icon-name="information-2"
             @click="openDetails(data.id)"
           />
@@ -81,6 +81,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -94,6 +95,7 @@ import { IntervalSecStorage } from '@/core/helpers/localStorageHelpers'
 
 const store = useCryptoStore()
 const router = useRouter()
+const { t } = useI18n()
 
 const search = ref('')
 const coinsIntervalSec = ref(IntervalSecStorage.get('coinsIntervalSec', 10))
@@ -110,7 +112,7 @@ const filteredCoins = computed(() =>
 )
 
 const emptyText = computed(() =>
-  search.value.trim() ? 'No coins found' : 'No data'
+  search.value.trim() ? t('dashboard.emptySearch') : t('ui.noData')
 )
 
 const wrappedLoadCoins = async () => {

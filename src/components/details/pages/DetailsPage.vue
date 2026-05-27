@@ -3,7 +3,7 @@
     <div class="flex items-center gap-4 mb-6">
       <SearchInput
         v-model="searchQuery"
-        placeholder="Search coin by name or symbol..."
+        :placeholder="t('details.searchPlaceholder')"
         :class-name="'h-[32px] w-[320px]'"
         @input="debouncedSearch"
         @clear="clearSearch"
@@ -23,7 +23,7 @@
     </div>
 
     <div v-else-if="searchResults.length && !coinDetails" class="mb-6">
-      <p class="text-sm text-muted-color mb-3">Select a coin from search results</p>
+      <p class="text-sm text-muted-color mb-3">{{ t('details.selectFromResults') }}</p>
       <div class="flex flex-col gap-2">
         <button
           v-for="coin in searchResults"
@@ -61,7 +61,7 @@
               v-if="coinDetails.market_cap_rank"
               class="text-sm px-2 py-0.5 rounded bg-primary-100 dark:bg-primary-900/30 text-primary"
             >
-              Rank #{{ coinDetails.market_cap_rank }}
+              {{ t('details.rank', { rank: coinDetails.market_cap_rank }) }}
             </span>
           </div>
           <p class="text-3xl font-semibold mt-2">
@@ -75,7 +75,7 @@
             "
             class="text-sm font-medium"
           >
-            {{ coinDetails.market_data.price_change_percentage_24h?.toFixed(2) ?? '—' }}% (24h)
+            {{ t('details.change24h', { value: coinDetails.market_data.price_change_percentage_24h?.toFixed(2) ?? '—' }) }}
           </span>
         </div>
       </div>
@@ -95,7 +95,7 @@
         v-if="description"
         class="p-6 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900"
       >
-        <h3 class="text-lg font-semibold mb-3">About</h3>
+        <h3 class="text-lg font-semibold mb-3">{{ t('details.about') }}</h3>
         <p class="text-sm text-muted-color leading-relaxed">{{ description }}</p>
       </div>
 
@@ -103,7 +103,7 @@
         v-if="homepage"
         class="p-6 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900"
       >
-        <h3 class="text-lg font-semibold mb-3">Links</h3>
+        <h3 class="text-lg font-semibold mb-3">{{ t('details.links') }}</h3>
         <a
           :href="homepage"
           target="_blank"
@@ -115,12 +115,13 @@
       </div>
     </div>
 
-    <NotFound v-else class="py-12" text="Enter a coin name to view details" />
+    <NotFound v-else class="py-12" :text="t('details.emptyPrompt')" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import SearchInput from '@/components/ui/SearchInput.vue'
 import NotFound from '@/components/ui/badges/NotFound.vue'
@@ -137,6 +138,7 @@ import {
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const searchQuery = ref('')
 const searchResults = ref<CoinSearchResult[]>([])
@@ -158,20 +160,20 @@ const stats = computed(() => {
   if (!data) return []
 
   return [
-    { label: 'Market Cap', value: formatCompactUsd(data.market_cap.usd) },
-    { label: 'Volume (24h)', value: formatCompactUsd(data.total_volume.usd) },
-    { label: 'ATH', value: formatUsd(data.ath.usd) },
-    { label: 'ATL', value: formatUsd(data.atl.usd) },
+    { label: t('details.stats.marketCap'), value: formatCompactUsd(data.market_cap.usd) },
+    { label: t('details.stats.volume24h'), value: formatCompactUsd(data.total_volume.usd) },
+    { label: t('details.stats.ath'), value: formatUsd(data.ath.usd) },
+    { label: t('details.stats.atl'), value: formatUsd(data.atl.usd) },
     {
-      label: 'Circulating Supply',
+      label: t('details.stats.circulatingSupply'),
       value: data.circulating_supply?.toLocaleString() ?? '—',
     },
     {
-      label: 'Total Supply',
+      label: t('details.stats.totalSupply'),
       value: data.total_supply?.toLocaleString() ?? '—',
     },
     {
-      label: 'Max Supply',
+      label: t('details.stats.maxSupply'),
       value: data.max_supply?.toLocaleString() ?? '—',
     },
   ]
@@ -188,7 +190,7 @@ async function loadCoinDetails(id: string) {
     searchQuery.value = coinDetails.value.name
     router.replace({ name: 'main', params: { page: 'details' }, query: { coin: id } })
   } catch {
-    error.value = 'Failed to load coin details'
+    error.value = t('details.errors.loadFailed')
   } finally {
     loading.value = false
   }
@@ -217,13 +219,13 @@ async function performSearch() {
     searchResults.value = results.slice(0, 8)
 
     if (searchResults.value.length === 0) {
-      error.value = 'No coins found'
+      error.value = t('details.errors.notFound')
     } else if (searchResults.value.length === 1) {
       const match = searchResults.value[0]
       if (match) await loadCoinDetails(match.id)
     }
   } catch {
-    error.value = 'Failed to search coins'
+    error.value = t('details.errors.searchFailed')
     searchResults.value = []
   } finally {
     loading.value = false
