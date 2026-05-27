@@ -5,12 +5,12 @@ export type AppLocale = 'ru-RU' | 'en-EN'
 
 function readStoredLocale(): AppLocale {
   try {
-    if (typeof window === 'undefined') return 'ru-RU'
+    if (typeof window === 'undefined') return 'en-EN'
     const raw = window.localStorage.getItem('locale')
     if (raw === 'ru-RU' || raw === 'en-EN') return raw
-    return 'ru-RU'
+    return 'en-EN'
   } catch {
-    return 'ru-RU'
+    return 'en-EN'
   }
 }
 

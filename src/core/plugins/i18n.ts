@@ -28,7 +28,7 @@ function ruPluralizationRules(choice: number, choicesLength: number) {
 
 const i18n = createI18n({
   legacy: false,
-  locale: 'ru-RU',
+  locale: 'en-EN',
   globalInjection: true,
   pluralRules: {
     'ru-RU': ruPluralizationRules,
