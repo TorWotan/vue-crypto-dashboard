@@ -24,7 +24,7 @@
       <ProgressSpinner strokeWidth="4" class="!h-10 !w-10" />
     </div>
 
-    <NotFound v-else-if="!topCoins.length" class="py-12" :text="t('charts.noData')" />
+    <NotFound v-else-if="!hasChartData" class="py-12" :text="t('charts.noData')" />
 
     <div v-else class="flex justify-center">
       <Chart
@@ -145,6 +145,24 @@ const chartData = computed(() => {
       },
     ],
   }
+})
+
+const hasChartData = computed(() => {
+  if (!topCoins.value.length) return false
+
+  if (chartType.value === 'line') {
+    return topCoins.value.some((coin) => (coin.sparkline_in_7d?.price?.length ?? 0) > 0)
+  }
+
+  if (chartType.value === 'doughnut') {
+    return topCoins.value.some((coin) => Number(coin.market_cap) > 0)
+  }
+
+  return topCoins.value.some(
+    (coin) =>
+      Number.isFinite(coin.current_price) ||
+      Number.isFinite(coin.price_change_percentage_24h)
+  )
 })
 
 const chartOptions = computed<ChartOptions>(() => {
