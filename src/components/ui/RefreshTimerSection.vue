@@ -2,49 +2,46 @@
   <div class="inline-flex items-center gap-[2px] relative">
     <ButtonRepeat @update="$emit('refresh')" :spinOnce="spinOnce" />
 
-    <div v-if="!hideTimer" ref="wrap" class="inline-flex items-center gap-2 relative">
+    <div
+      v-if="!hideTimer"
+      ref="wrap"
+      class="inline-flex items-center relative"
+      @mouseleave="scheduleAutoClose"
+    >
       <RequestTimer
         :status="requestTimerStatus"
         :lastSuccessAt="lastSuccessTime"
         class="h-[30px] cursor-pointer"
         style="border-radius: 0 4px 4px 0; min-width: 70px"
-        @click="openIntervalSec"
+        @click="toggleIntervalSec"
         :aria-expanded="show ? 'true' : 'false'"
+        aria-haspopup="listbox"
         :pendingFillDurationMs="intervalSec * 1000"
-        :labelFormatter="formatSecondsAgo"
+        :labelFormatter="(s) => t('ui.secondsAgo', { s })"
       />
 
       <Transition name="drop">
         <div
           v-show="show"
-          class="absolute bottom-full mb-2 left-1/2 w-[80px] z-10 drop-panel"
-          @keydown.esc.stop.prevent="closeIntervalSec"
+          class="absolute top-full left-1/2 z-10 drop-panel w-[71px] rounded-[0_0_4px_4px] border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-sm overflow-hidden"
+          role="listbox"
+          @keydown.esc.stop.prevent="show = false"
+          @mouseenter="clearAutoCloseTimer"
         >
-          <Select
-            v-model="localIntervalSec"
-            :options="intervalOptions"
-            placeholder="7"
-            @show="openSelect"
-            @hide="closeSelect"
-            class="scale-[0.85]"
-            @change="closeIntervalSec"
-            :pt="{
-              list: { class: 'scroll-thin' },
-              dropdownIcon: { style: { transform: `rotate(${rotateReload}deg) !important` } },
-              dropdown: { class: 'select-arrow-repeat scale-[0.8]' },
-              emptyMessage: { class: 'text-sm' },
-            }"
-          >
-            <template #option="{ option }">
-              <span class="font-mono text-black dark:text-white">{{ option }}</span>
-            </template>
-            <template #value="{ value, placeholder }">
-              <span v-if="value" class="text-sm font-semibold text-black dark:text-white">{{
-                value
-              }}</span>
-              <span v-else class="text-zinc-400 dark:text-zinc-500">{{ placeholder }}</span>
-            </template>
-          </Select>
+          <ul class="max-h-[200px] overflow-y-auto scroll-thin py-1">
+            <li v-for="option in intervalOptions" :key="option">
+              <button
+                type="button"
+                role="option"
+                :aria-selected="option === localIntervalSec"
+                class="interval-option w-full px-3 py-1.5 text-sm font-mono text-left text-black dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                :class="{ 'interval-option-selected': option === localIntervalSec }"
+                @click="selectInterval(option)"
+              >
+                {{ option }}
+              </button>
+            </li>
+          </ul>
         </div>
       </Transition>
     </div>
@@ -52,97 +49,112 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, onBeforeUnmount } from 'vue'
-import { useI18n } from 'vue-i18n'
-import RequestTimer from '@/components/ui/RequestTimer.vue'
-import Select from 'primevue/select'
-import ButtonRepeat from '@/components/ui/ButtonRepeat.vue'
+import { ref, watch, nextTick, onBeforeUnmount } from 'vue';
+import RequestTimer from '@/components/ui/RequestTimer.vue';
+import ButtonRepeat from '@/components/ui/ButtonRepeat.vue';
+import { useI18n } from 'vue-i18n';
 
 interface Props {
-  spinOnce: boolean
-  requestTimerStatus: 'success' | 'pending' | 'error'
-  lastSuccessTime: number | null
-  intervalSec: number
-  intervalOptions?: number[]
-  hideTimer?: boolean
+  spinOnce: boolean;
+  requestTimerStatus: 'success' | 'pending' | 'error';
+  lastSuccessTime: number | null;
+  intervalSec: number;
+  intervalOptions?: number[];
+  hideTimer?: boolean;
 }
 
 interface Emits {
-  (e: 'refresh'): void
-  (e: 'animationend'): void
-  (e: 'intervalChange', value: number): void
+  (e: 'refresh'): void;
+  (e: 'animationend'): void;
+  (e: 'intervalChange', value: number): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   intervalOptions: () => [5, 7, 10, 15, 20, 30, 60],
-  hideTimer: false,
-})
+  hideTimer: false
+});
 
-const emit = defineEmits<Emits>()
+const emit = defineEmits<Emits>();
 
-const { t } = useI18n()
+const { t } = useI18n();
 
-function formatSecondsAgo(seconds: number) {
-  return t('ui.secondsAgo', { s: seconds })
+const show = ref(false);
+const wrap = ref<HTMLElement | null>(null);
+const localIntervalSec = ref(props.intervalSec);
+
+const AUTO_CLOSE_MS = 700;
+let autoCloseTimer: ReturnType<typeof setTimeout> | null = null;
+
+function clearAutoCloseTimer() {
+  if (autoCloseTimer != null) {
+    clearTimeout(autoCloseTimer);
+    autoCloseTimer = null;
+  }
 }
 
-const show = ref(false)
-const wrap = ref<HTMLElement | null>(null)
-const rotateReload = ref<number>(0)
-const localIntervalSec = ref(props.intervalSec)
-
-function openIntervalSec() {
-  if (show.value) return
-  show.value = true
+function scheduleAutoClose() {
+  clearAutoCloseTimer();
+  autoCloseTimer = setTimeout(() => {
+    show.value = false;
+    autoCloseTimer = null;
+  }, AUTO_CLOSE_MS);
 }
 
-async function closeIntervalSec() {
-  await setTimeout(() => {})
-  show.value = false
-  emit('intervalChange', localIntervalSec.value)
+function toggleIntervalSec() {
+  show.value = !show.value;
 }
 
-function openSelect() {
-  rotateReload.value = 180
-}
-
-function closeSelect() {
-  rotateReload.value = 0
+function selectInterval(value: number) {
+  localIntervalSec.value = value;
+  show.value = false;
+  emit('intervalChange', value);
 }
 
 function onDocPointer(e: Event) {
-  const target = e?.target as Node
-  if (wrap.value && !wrap.value.contains(target)) show.value = false
+  const target = e?.target as Node;
+  if (wrap.value && !wrap.value.contains(target)) show.value = false;
 }
 
 watch(show, async (v) => {
   if (v) {
-    await nextTick()
-    document.addEventListener('mousedown', onDocPointer, true)
-    document.addEventListener('touchstart', onDocPointer, true)
+    await nextTick();
+    scheduleAutoClose();
+    document.addEventListener('mousedown', onDocPointer, true);
+    document.addEventListener('touchstart', onDocPointer, true);
   } else {
-    await nextTick()
-    document.removeEventListener('mousedown', onDocPointer, true)
-    document.removeEventListener('touchstart', onDocPointer, true)
+    clearAutoCloseTimer();
+    await nextTick();
+    document.removeEventListener('mousedown', onDocPointer, true);
+    document.removeEventListener('touchstart', onDocPointer, true);
   }
-})
+});
 
 watch(
   () => props.intervalSec,
   (newValue) => {
-    localIntervalSec.value = newValue
+    localIntervalSec.value = newValue;
   }
-)
+);
 
 onBeforeUnmount(() => {
-  document.removeEventListener('mousedown', onDocPointer, true)
-  document.removeEventListener('touchstart', onDocPointer, true)
-})
+  clearAutoCloseTimer();
+  document.removeEventListener('mousedown', onDocPointer, true);
+  document.removeEventListener('touchstart', onDocPointer, true);
+});
 </script>
 
 <style scoped>
 .drop-panel {
   transform: translate(-50%, 0);
+}
+
+.drop-panel .scroll-thin {
+  overscroll-behavior: contain;
+}
+
+.interval-option-selected {
+  background-color: color-mix(in srgb, var(--p-primary-color) 20%, transparent);
+  color: var(--p-primary-color);
 }
 
 .drop-enter-from {
